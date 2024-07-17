@@ -1,11 +1,10 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/ScrollToTop";
-
 import { Home } from "./views/Home";
 import { ItemDetails } from "./views/ItemDetails";
 import injectContext from "./store/appContext";
-
+import { Login } from "./component/Login";
 import { Navbar } from "./component/Navbar";
 import { Footer } from "./component/Footer";
 
@@ -19,7 +18,8 @@ const Layout = () => {
 				<ScrollToTop>
 					<Navbar />
 					<Routes>
-						<Route path="/" element={<Home />} />
+						<Route path="/" element={<Login />} />
+						<Route path="/Home" element={<Home />} />
 						<Route path="learn/:type/:uid" element={<ItemDetails />} />
 						<Route path="*" element={<h1>Not found!</h1>} />
 					</Routes>
