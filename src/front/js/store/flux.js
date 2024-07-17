@@ -1,54 +1,68 @@
+import { element } from "prop-types";
+
 const getState = ({ getStore, getActions, setStore }) => {
+
 	return {
 		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			people: [],
+			planets: [],
+			vehicles: [],
+			favorites: [],
 		},
+
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			getItems: () => {
+				const store = getStore();
+				const natures = ['people', 'planets', 'vehicles'];
+
+				natures.forEach(async (nature) => {
+					const url = `https://www.swapi.tech/api/${nature}`;
+
+					try {
+						const response = await fetch(`${url}`)
+						const data = await response.json()
+
+						data.results.forEach(async (item) => {
+							const responseTwo = await fetch(`${url}/${item.uid}`)
+							const dataTwo = await responseTwo.json()
+
+							setStore({
+								[nature]: [...store[nature], dataTwo.result]
+							})
+						})
+					} 
+					catch (error) {console.log(error)}
+				})
 			},
 
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
+
+			addFavorite: (element) => {
+				const store = getStore();
+				const { favorites } = store
+				const isFavorite = favorites.filter(item => item.properties.name == element.properties.name);
+				console.log(favorites)
+
+				if (isFavorite.length == 0) {
+					setStore({
+						favorites: [...favorites, element]
+					})
+				} else {
+					console.log("ya existe")
 				}
 			},
-			changeColor: (index, color) => {
-				//get the store
+
+			deleteFavorite: (element) => {
 				const store = getStore();
+				const { favorites } = store;
+				const unFavorite = favorites.filter(item => item.properties.name != element.properties.name);
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
+				setStore({
+					favorites: unFavorite
+				})
 			}
+
 		}
-	};
+	}
 };
 
 export default getState;
