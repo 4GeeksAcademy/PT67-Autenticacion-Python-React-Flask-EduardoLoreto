@@ -6,10 +6,13 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
-from api.models import db
+from api.models import db, User, People, Planets, Vehicles, UserFavorites
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # from models import Person
 
@@ -36,6 +39,18 @@ setup_admin(app)
 
 # add the admin
 setup_commands(app)
+
+from dotenv import load_dotenv
+load_dotenv()
+
+# database configuration
+db_url = os.getenv("DATABASE_URL")
+if db_url is not None:
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
+        "postgres://", "postgresql://")
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
+
 
 # Add all endpoints form the API with a "api" prefix
 app.register_blueprint(api, url_prefix='/api')
